@@ -1,20 +1,29 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { RegistrationScreen } from "./src/Screens/RegistrationScreen";
+import { StyleSheet } from 'react-native';
+import { useFonts } from "expo-font";
 
-export default function App() {
+
+const App = () => {
+  const [fontsLoaded] = useFonts({
+    "rb-regular": require("./src/assets/fonts/Roboto-Regular.ttf"),
+    "rb-bold": require("./src/assets/fonts/Roboto-Bold.ttf"),
+    "rb-medium": require("./src/assets/fonts/Roboto-Medium.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <RegistrationScreen />
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//   },
+// });
