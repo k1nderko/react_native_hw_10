@@ -15,13 +15,14 @@ export const AddPhoto = () => {
 
 const styles = StyleSheet.create({
   wrapper: {
+    flex: 1,
     position: "absolute",
     top: height * -0.07,
     right: width * 0.35,
     zIndex: 1,
 
-    width: 132,
-    height: 120,
+    width: "32%",
+    aspectRatio: 1,
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
     justifyContent: "center",
@@ -29,8 +30,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     position: "relative",
-    top: -12,
-    left: 117,
+    top: height * -0.02,
+    right: width * -0.155,
     color: "#FF6C00",
   },
   image: {

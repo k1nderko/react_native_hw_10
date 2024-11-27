@@ -1,5 +1,6 @@
 import React from "react";
 import { RegistrationScreen } from "./src/Screens/RegistrationScreen";
+import { LoginScreen } from "./src/Screens/LoginScreen";
 import { StyleSheet } from 'react-native';
 import { useFonts } from "expo-font";
 
@@ -16,7 +17,8 @@ const App = () => {
   }
 
   return (
-    <RegistrationScreen />
+    // <RegistrationScreen />
+    <LoginScreen />
   );
 };
 
