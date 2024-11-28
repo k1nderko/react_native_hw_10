@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextInput, View, StyleSheet } from "react-native";
+import { TextInput, View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { Title } from "../components/Title";
 import { AddPhoto } from "../components/AddPhoto";
 import { Background } from "../components/Background";
@@ -7,8 +7,10 @@ import { Button } from "../components/Button";
 import { Link } from "../components/Link";
 import { ShowPassword } from "../components/ShowPassword";
 import { KeyboardWrapper } from "../components/KeyboardWrapper";
+import { useNavigation } from '@react-navigation/native';
 
 export const RegistrationScreen = () => {
+  const navigation = useNavigation();
   const [focusedInput, setFocusedInput] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -35,6 +37,7 @@ export const RegistrationScreen = () => {
 
   const handleSubmit = () => {
     console.log("Дані форми:", formData);
+    navigation.navigate('BottomTabNavigator');
   };
 
   const getInputStyle = (inputName) => {
@@ -86,7 +89,11 @@ export const RegistrationScreen = () => {
             </View>
           </View>
           <Button title="Зареєстуватися" onPress={handleSubmit} />
-          <Link>Вже є акаунт? Увійти</Link>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('LoginScreen')}
+          >
+            <Text style={styles.loginText}>Вже є аккаунт? Увійти</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardWrapper>
     </Background>
@@ -122,4 +129,13 @@ const styles = StyleSheet.create({
     borderColor: "#F6F6F6",
   },
   inputFocused: { borderColor: "#FF6C00" },
+    loginText: {
+    color: '#1B4371',
+    textAlign: 'center',
+    fontFamily: 'rb-regular',
+    fontSize: 16,
+    fontStyle: 'normal',
+    fontWeight: 400,
+    lineHeight: 16,
+  },
 });

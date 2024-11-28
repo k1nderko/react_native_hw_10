@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { TextInput, View, Text, StyleSheet } from "react-native";
+import { TextInput, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Title } from "../components/Title";
 import { Background } from "../components/Background";
 import { Button } from "../components/Button";
 import { Link } from "../components/Link";
 import { ShowPassword } from "../components/ShowPassword";
 import { KeyboardWrapper } from "../components/KeyboardWrapper";
+import { useNavigation } from '@react-navigation/native';
 
 export const LoginScreen = () => {
+  const navigation = useNavigation();
   const [focusedInput, setFocusedInput] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -33,6 +35,7 @@ export const LoginScreen = () => {
 
   const handleSubmit = () => {
     console.log("Дані форми:", formData);
+    navigation.navigate('BottomTabNavigator');
   };
 
   const getInputStyle = (inputName) => {
@@ -74,9 +77,14 @@ export const LoginScreen = () => {
           </View>
 
           <Button title="Увійти" onPress={handleSubmit} />
-          <Link>
-            Немає акаунту? <Text style={styles.linkText}>Зареєструватися</Text>
-          </Link>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('RegistrationScreen')}
+          >
+            <Text style={styles.loginText}>
+              Немає акаунту?
+              <Text style={styles.registerText}> Зареєструватися</Text>
+            </Text>
+          </TouchableOpacity>
         </View>
       </KeyboardWrapper>
     </Background>
@@ -120,5 +128,17 @@ const styles = StyleSheet.create({
   },
   linkText: {
     textDecorationLine: "underline",
+  },
+    loginText: {
+    color: '#1B4371',
+    textAlign: 'center',
+    fontFamily: 'rb-regular',
+    fontSize: 16,
+    fontStyle: 'normal',
+    fontWeight: 400,
+    lineHeight: 16,
+  },
+  registerText: {
+    textDecorationLine: 'underline',
   },
 });

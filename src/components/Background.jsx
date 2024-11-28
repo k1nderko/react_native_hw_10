@@ -5,7 +5,7 @@ export const Background = ({ children }) => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../assets/background.jpg")}
+        source={require("../assets/images/background.jpg")}
         resizeMode="cover"
         style={styles.image}
       >
