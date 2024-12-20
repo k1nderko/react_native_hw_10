@@ -6,130 +6,157 @@ import {
   Text,
   TextInput,
   View,
+  KeyboardAvoidingView,
 } from 'react-native';
-import { SendMessageBtn } from '../components/SendMessageBtn';
+import { useRoute } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { nanoid } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
+import { addDoc, arrayUnion, collection, doc, onSnapshot, updateDoc, } from "firebase/firestore";
+import { db } from "../../config";
+import { selectComments } from "../redux/selectors";
+import { setComments } from "../redux/commentsSlice";
+import CommentCard from "../components/CommentCard";
+import SendMessageBtn from "../components/SendMessageBtn";
+import BLACKSEA from "../assets/images/blacksea.png";
 
-const comments = [
-  {
-    id: '1',
-    text: 'Really love your most recent photo. I’ve been trying to capture the same thing for a few months and would love some tips!',
-    date: '09 червня, 2020 | 08:40',
-    avatar: require('../assets/images/ee1d.jpg'),
-  },
-  {
-    id: '2',
-    text: 'A fast 50mm like f1.8 would help with the bokeh. I’ve been using primes as they tend to get a bit sharper images.',
-    date: '09 червня, 2020 | 09:14',
-    avatar: require('../assets/images/userphoto.jpg'),
-  },
-  {
-    id: '3',
-    text: 'Thank you! That was very helpful!',
-    date: '09 червня, 2020 | 09:20',
-    avatar: require('../assets/images/ee1d.jpg'),
-  },
-];
+import { comments } from "../data/comments";
 
-export const CommentsScreen = () => {
-  return (
-    <View style={styles.container}>
-      <Image
-        style={styles.img}
-        source={require('../assets/images/blacksea.png')}
-      />
-      <FlatList
-        style={styles.commentsList}
-        data={comments}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.commentContainer}>
-            <Image source={item.avatar} style={styles.avatar} />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentText}>{item.text}</Text>
-              <Text style={styles.commentDate}>{item.date}</Text>
-            </View>
-          </View>
-        )}
-        contentContainerStyle={styles.commentsList}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Коментувати..."
-          placeholderTextColor="#BDBDBD"
-        />
-        <SendMessageBtn />
-      </View>
-    </View>
-  );
+const CommentsScreen = () => {
+    const [message, setMessage] = useState();
+    const dispatch = useDispatch();
+    const comments = useSelector(selectComments);
+
+    const { params: { postId }, } = useRoute();
+
+    useEffect(() => {
+        onSnapshot(doc(db, "posts", postId), (snapshot) => {
+            if (snapshot.exists) {
+                dispatch(setComments(snapshot.data().comments || []));
+            }
+        });
+    }, []);
+
+    const onSendMessage = async () => {
+        try {
+            await updateDoc(doc(db, "posts", postId), {
+                comments: arrayUnion({
+                id: nanoid(),
+                message,
+                datetime: new Intl.DateTimeFormat("uk-UA", {
+                    dateStyle: "full",
+                    timeStyle: "medium",
+                    timeZone: "Australia/Sydney",
+                }).format(new Date()),
+                }),
+            });
+        
+            setMessage("");
+        } catch (error) {
+            console.log("onSendMessage", error);
+        }
+    };
+
+    return (
+        <View style={styles.containerComments}>
+            <Image
+                source={BLACKSEA}
+                style={styles.commentImg}
+            />
+            <FlatList
+                data={comments}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item, index }) => (
+                  <CommentCard item={item} index={index} />
+                  // <View style={styles.commentItem}>
+                  //       <View style={styles.commentText}>
+                  //           <Text style={styles.commentTextMessage}>{item.message}</Text>
+                  //           <Text style={styles.commentTextDatetime}>{item.datetime}</Text>
+                  //       </View>
+                  //       <Image source={item.avatar} style={styles.commentAvatar} />
+                  //   </View>
+                )}
+                contentContainerStyle={styles.commentsList}
+            />
+            <KeyboardAvoidingView>
+                <View style={styles.commentInputContainer}>
+                    <TextInput
+                        onChangeText={setMessage}
+                        placeholder="Коментувати..."
+                        placeholderTextColor="#BDBDBD"
+                        value={message}
+                        style={styles.commentInput}
+                    />
+                    <SendMessageBtn onPress={onSendMessage} />
+                </View>
+            </KeyboardAvoidingView>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 32,
-    paddingBottom: 16,
-    gap: 32,
-  },
-  img: {
-    width: '100%',
-    height: 240,
-    borderRadius: 8,
-    resizeMode: 'cover',
-  },
-  commentsList: {
-    gap: 24,
-  },
-  commentContainer: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  avatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 20,
-  },
-  commentContent: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    borderRadius: 6,
-    padding: 16,
-    gap: 8,
-  },
-  commentText: {
-    color: '#212121',
-    fontFamily: 'rb-regular',
-    fontSize: 13,
-    fontStyle: 'normal',
-    fontWeight: '400',
-    lineHeight: 18,
-  },
-  commentDate: {
-    color: '#BDBDBD',
-    fontFamily: 'rb-regular',
-    textAlign: 'right',
-    fontSize: 10,
-    fontStyle: 'normal',
-    fontWeight: '400',
-    lineHeight: 18,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F6F6F6',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 100,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    fontFamily: 'rb-medium',
-    color: '#212121',
-  },
+    containerComments: {
+        flex: 1,
+        paddingTop: 32,
+        paddingRight: 16,
+        paddingLeft: 16,
+        backgroundColor: "#FFFFFF",
+    },
+    commentImg: {
+        width: "100%",
+        marginBottom: 32,
+        resizeMode: 'cover',
+        borderRadius: 8,
+    },
+    commentsList: {
+        gap: 24,
+    },
+    commentItem: {
+        flexDirection: 'row',
+        gap: 16,
+    },
+    commentAvatar: {
+        width: 28,
+        height: 28,
+        marginLeft: 16,
+        borderRadius: 14,
+    },
+    commentText: {
+        flex: 1,
+        padding: 16,
+        borderRadius: 6,
+        borderTopRightRadius: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    },
+    commentTextMessage: {
+        marginBottom: 8,
+        fontSize: 14,
+        fontWeight: "normal",
+        lineHeight: 18,
+        color: "#212121",
+    },
+    commentTextDatetime: {
+        fontSize: 10,
+        fontWeight: "normal",
+        textAlign: 'right',
+        color: "#BDBDBD",
+    },
+    commentInputContainer: {
+        position: 'relative',
+        marginTop: 16,
+        marginBottom: 16,
+    },
+    commentInput: {
+        width: "100%",
+        height: 50,
+        padding: 16,
+        backgroundColor: "#F6F6F6",
+        borderRadius: 25,
+        borderWidth: 1,
+        borderColor: "#E8E8E8",
+        fontSize: 16,
+        fontWeight: "normal",
+    },
 });
+
+export default CommentsScreen;
